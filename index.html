@@ -474,6 +474,20 @@
       if (!fileInput.files || fileInput.files.length === 0) { showError('err-file', true); valid = false; } else showError('err-file', false);
       if (!valid) return;
 
+      // 파일을 base64로 변환
+      const file = fileInput.files[0];
+      let fileData = '';
+      let fileType = '';
+      if (file) {
+        fileType = file.type;
+        fileData = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result.split(',')[1]);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+      }
+
       const payload = {
         myName: document.getElementById('myName').value.trim(),
         myDept: document.getElementById('myDept').value.trim(),
@@ -483,7 +497,9 @@
         nomineeDept: isSelf ? '' : document.getElementById('nomineeDept').value.trim(),
         nomineeReason: isSelf ? '' : document.getElementById('nomineeReason').value.trim(),
         comment: document.getElementById('comment').value.trim(),
-        fileName: fileInput.files[0] ? fileInput.files[0].name : ''
+        fileName: file ? file.name : '',
+        fileData: fileData,
+        fileType: fileType
       };
 
       document.getElementById('loadingOverlay').style.display = 'flex';
