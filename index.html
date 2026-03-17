@@ -299,7 +299,7 @@
       </div>
 
       <!-- Google Sheets URL 설정 -->
-      <div class="url-setup">
+      <div class="url-setup" id="url-setup-box">
         <div class="url-setup-label">🔗 관리자 설정 — Google Sheets 연동 URL</div>
         <div class="url-setup-desc">Apps Script 배포 후 받은 웹 앱 URL을 입력하고 저장하세요. 최초 1회만 설정하면 됩니다.</div>
         <div class="url-row">
@@ -307,6 +307,10 @@
           <button onclick="saveUrl()">저장</button>
         </div>
         <div class="url-status" id="urlStatus"></div>
+      </div>
+      <div id="url-saved-bar" style="display:none; align-items:center; gap:10px; background:#E1F5EE; border:0.5px solid #5DCAA5; border-radius:10px; padding:10px 16px; margin-bottom:28px; font-size:13px; color:#0F6E56;">
+        <span>✓ Google Sheets 연동이 설정되어 있습니다.</span>
+        <button onclick="resetUrl()" style="margin-left:auto; font-size:12px; background:none; border:0.5px solid #5DCAA5; border-radius:6px; padding:4px 10px; color:#0F6E56; cursor:pointer;">URL 변경</button>
       </div>
 
       <!-- 내 정보 -->
@@ -414,6 +418,16 @@
     let isSelf = false;
     let scriptUrl = '';
 
+    window.addEventListener('DOMContentLoaded', function() {
+      const saved = localStorage.getItem('gaon_script_url');
+      if (saved) {
+        scriptUrl = saved;
+        document.getElementById('scriptUrl').value = saved;
+        document.getElementById('url-setup-box').style.display = 'none';
+        document.getElementById('url-saved-bar').style.display = 'flex';
+      }
+    });
+
     function saveUrl() {
       const val = document.getElementById('scriptUrl').value.trim();
       const status = document.getElementById('urlStatus');
@@ -423,8 +437,22 @@
         return;
       }
       scriptUrl = val;
+      localStorage.setItem('gaon_script_url', val);
       status.className = 'url-status ok';
       status.textContent = '✓ URL이 저장됐습니다. 이제 폼을 제출할 수 있어요.';
+      setTimeout(() => {
+        document.getElementById('url-setup-box').style.display = 'none';
+        document.getElementById('url-saved-bar').style.display = 'flex';
+      }, 800);
+    }
+
+    function resetUrl() {
+      localStorage.removeItem('gaon_script_url');
+      scriptUrl = '';
+      document.getElementById('scriptUrl').value = '';
+      document.getElementById('urlStatus').textContent = '';
+      document.getElementById('url-setup-box').style.display = 'block';
+      document.getElementById('url-saved-bar').style.display = 'none';
     }
 
     function selectType(type) {
